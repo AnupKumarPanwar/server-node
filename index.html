@@ -1,0 +1,173 @@
+<!-- START SIGMA IMPORTS -->
+<script src="src/sigma.core.js"></script>
+<script src="src/conrad.js"></script>
+<script src="src/utils/sigma.utils.js"></script>
+<script src="src/utils/sigma.polyfills.js"></script>
+<script src="src/sigma.settings.js"></script>
+<script src="src/classes/sigma.classes.dispatcher.js"></script>
+<script src="src/classes/sigma.classes.configurable.js"></script>
+<script src="src/classes/sigma.classes.graph.js"></script>
+<script src="src/classes/sigma.classes.camera.js"></script>
+<script src="src/classes/sigma.classes.quad.js"></script>
+<script src="src/classes/sigma.classes.edgequad.js"></script>
+<script src="src/captors/sigma.captors.mouse.js"></script>
+<script src="src/captors/sigma.captors.touch.js"></script>
+<script src="src/renderers/sigma.renderers.canvas.js"></script>
+<script src="src/renderers/sigma.renderers.webgl.js"></script>
+<script src="src/renderers/sigma.renderers.svg.js"></script>
+<script src="src/renderers/sigma.renderers.def.js"></script>
+<script src="src/renderers/webgl/sigma.webgl.nodes.def.js"></script>
+<script src="src/renderers/webgl/sigma.webgl.nodes.fast.js"></script>
+<script src="src/renderers/webgl/sigma.webgl.edges.def.js"></script>
+<script src="src/renderers/webgl/sigma.webgl.edges.fast.js"></script>
+<script src="src/renderers/webgl/sigma.webgl.edges.arrow.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.labels.def.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.hovers.def.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.nodes.def.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edges.def.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edges.curve.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edges.arrow.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edges.curvedArrow.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edgehovers.def.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edgehovers.curve.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edgehovers.arrow.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.edgehovers.curvedArrow.js"></script>
+<script src="src/renderers/canvas/sigma.canvas.extremities.def.js"></script>
+<script src="src/renderers/svg/sigma.svg.utils.js"></script>
+<script src="src/renderers/svg/sigma.svg.nodes.def.js"></script>
+<script src="src/renderers/svg/sigma.svg.edges.def.js"></script>
+<script src="src/renderers/svg/sigma.svg.edges.curve.js"></script>
+<script src="src/renderers/svg/sigma.svg.labels.def.js"></script>
+<script src="src/renderers/svg/sigma.svg.hovers.def.js"></script>
+<script src="src/middlewares/sigma.middlewares.rescale.js"></script>
+<script src="src/middlewares/sigma.middlewares.copy.js"></script>
+<script src="src/misc/sigma.misc.animation.js"></script>
+<script src="src/misc/sigma.misc.bindEvents.js"></script>
+<script src="src/misc/sigma.misc.bindDOMEvents.js"></script>
+<script src="src/misc/sigma.misc.drawHovers.js"></script>
+<script src="jquery.js"></script>
+<!-- END SIGMA IMPORTS -->
+<script src="plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
+<div id="container">
+  <style>
+    #graph-container {
+      top: 25%;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 50%;
+      height: 50%;
+      position: absolute;
+      padding: 10px;
+    }
+
+    #sidebar {
+      top:40%;
+      right: 0;
+      width: 45%;
+      height: 50%;
+      position: absolute;
+      /*background-color: #999;*/
+      padding: 10px;
+    }
+  </style>
+  <div style="top:0; width: 100%; height: 10%"> <center><h1>Trestor Server</h1></center></div>
+  <div id="graph-container"></div>
+  <div id="sidebar">Double Click The Node For Information</div>
+</div>
+<script>
+/**
+ * This example shows how to use the dragNodes plugin.
+ */
+
+ setInterval(function(){
+var i,
+    s,
+    N = 10,
+    E = 5,
+    g = {
+      nodes: [],
+      edges: []
+    };
+
+// Generate a random graph:
+$.getJSON("server.json", function(data){
+
+
+for (i = 0; i <data.nodes.length ; i++)
+ {
+ 	g.nodes.push(data.nodes[i]);
+ 	if(data.nodes[i].state=='Sync')
+ 		data.nodes[i].color='#ff0'
+ 	else if(data.nodes[i].state=='Collect')
+ 		data.nodes[i].color='#f00'
+ 	else if(data.nodes[i].state=='Merge')
+ 		data.nodes[i].color='#6ff'
+ 	else if(data.nodes[i].state=='STNone')
+ 		data.nodes[i].color='#6cf'
+ 	else if(data.nodes[i].state=='ST40')
+ 		data.nodes[i].color='#996'
+ 	else if(data.nodes[i].state=='ST60')
+ 		data.nodes[i].color='#000'
+ 	else if(data.nodes[i].state=='ST75')
+ 		data.nodes[i].color='#f06'
+ 	else if(data.nodes[i].state=='ST80')
+ 		data.nodes[i].color='#f93'
+ 	else if(data.nodes[i].state=='STDone')
+ 		data.nodes[i].color='#009'
+ 	else if(data.nodes[i].state=='Apply')
+ 		data.nodes[i].color='#0c9'
+
+ }
+
+  // g.nodes.push({
+  //   id: 'n' + i,
+  //   label: 'Node ' + i,
+  //   x: i==0?20:i==1?30:i==2?60:i==3?90:i==4?60:i==5?30:Math.random(),
+  //   y: i==0?50:i==1?100:i==2?100:i==3?50:i==4?0:i==5?0:Math.random(),
+  //   size: 20,
+  //   color: '#0f0',
+  //   uptime: (Math.random()* 24|0 )+ ' hours',
+  //   clients: (Math.random()* 24|0 )+ ' Clients',
+  //   data_used: (Math.random()* 24|0 )+ ' GBs',
+  //   Location: i==0?'Chandigarh':i==1?'Amritsar':i==2?'Delhi':i==3?'Mumbai':i==4?'Chennai':i==5?'Ambala':'Hell'
+  // });
+
+for (i = 0; i < data.links.length; i++)
+  {g.edges.push(data.links[i]);}
+// sigma.renderers.def = sigma.renderers.canvas
+// Instantiate sigma:
+$('#graph-container').html("");
+
+
+$(g).click(function(){alert('hello')})
+
+console.log(JSON.stringify(g.nodes));
+
+s = new sigma({
+  graph: g,
+  container: 'graph-container'
+});
+
+// Initialize the dragNodes plugin:
+var dragListener = sigma.plugins.dragNodes(s, s.renderers[0]);
+
+dragListener.bind('startdrag', function(event) {
+  $('#sidebar').html(event.data.node.label + '<br>' + 'State : ' + event.data.node.state + '<br>' +'Uptime : ' +event.data.node.uptime + '<br>' + 'Clients : ' + event.data.node.clients + '<br>' + 'Data Used : '+ event.data.node.data_used + '<br>' + 'Location : '+event.data.node.Location);
+  // 
+  // console.log(eve);
+});
+// dragListener.bind('drag', function(event) {
+//   console.log(event);
+// });
+// dragListener.bind('drop', function(event) {
+//   console.log(event);
+// });
+// dragListener.bind('dragend', function(event) {
+//   console.log(event);
+// });
+
+});
+},500);
+
+</script>
